@@ -1,54 +1,23 @@
 import time
-import sys
 from datetime import datetime
-import requests
-import fourletterphat as flp
-import paho.mqtt.client as mqtt
+import fourletterphat as flp # only availble on raspberry pi 
+import paho.mqtt.client as mqtt # only availble on raspberry pi 
 import math
-import RPi.GPIO as GPIO
-from smbus2 import ADCPI
-import requests 
+import RPi.GPIO as GPIO # only availble on raspberry pi 
+from smbus2 import ADCPI # only availble on raspberry pi 
 import csv 
 
 
 class DigitalDisplay:
+    '''Handles displaying sentences on the LCD display with 4 character slots'''
     def __init__(self, sentence: str):
-        self.sentence = sentence
+        self.sentence = sentence.upper().replace(" ","")
         
-    def start_up(self):
-        placement = 0
-        joined_string = self.sentence.replace(" ", "").upper()
-        
-        for i in joined_string:
-            
-            if placement <= 3:
-                print(f"Goes here {placement} and display this character {i}")  # flp.set_digit(placement, i)
-                placement += 1
-            elif placement > 3:
-                placement = 0
-                print("")
-                print(f"Goes here {placement} and display this character {i}")  # flp.set_digit(placement, i)
-                placement +=1
-                
-        for i in range(300, 0,):
-             print(i)#flp.print_float(i - 300, decimal_digits=0)
-             #flp.show()
-             time.sleep(0.1)
-             
-    def print_message(self):
-        placement = 0
-        joined_string = self.sentence.replace(" ", "").upper()
-        
-        for i in joined_string:
-            
-            if placement <= 3:
-                print(f"Goes here {placement} and display this character {i}")  # flp.set_digit(placement, i)
-                placement += 1
-            elif placement > 3:
-                placement = 0
-                print("")
-                print(f"Goes here {placement} and display this character {i}")  # flp.set_digit(placement, i)
-                placement +=1
+    def display_message(self):
+        for position, char in enumerate(self.sentence):
+            print(f"Goes here {position % 4} and display this character {char}")  
+            if (position + 1) % 4 == 0:
+                time.sleep(1)  
 
 class MyMQTTClass(mqtt.Client):
     
@@ -89,7 +58,7 @@ class MyMQTTClass(mqtt.Client):
 
 class CalculatingValues:
     
-    correction_factor = 
+    correction_factor = 0.06 # Can optimise this by measuring at the pump and adjusting value 
     
     def __init__(self,raw_values:dict,correction_factor):
         self.raw_values = raw_values
@@ -108,6 +77,7 @@ class CalculatingValues:
                 print(f"{i} is out of range")
 
 class FileManager:
+    ''' Handles storing the data in a CSV and retriving the last value to know wether to turn heating on'''
     def __init__(self, file_location):
         self.file_location = file_location
         
@@ -145,18 +115,18 @@ class GPIO_start:
         GPIO.setup(21, GPIO.OUT, initial=GPIO.HIGH)  # Channel 3 Pump, includes pump overrun timer
 
 
-first_loop = True
-file_location = "C:/Users/ryan/OneDrive/Documents/test_file.csv"
-startup_sentence = "Vers 2021 Ryan edit"
-message1 = DigitalDisplay(startup_sentence).start_up()
-previous_room_stat_setting = 0.1
-#GPIO_start.start_up()
-adc = ADCPi(0x68, 0x69, 16).set_pga(1).set_conversion_mode(1)
-adc.set_pga(1)
-adc.set_conversion_mode(1)
-
 ################ MAIN PROGRAM ######################
 if __name__ == "__main__":
+    first_loop = True
+    file_location = "C:/Users/ryan/OneDrive/Documents/test_file.csv"
+    startup_sentence = "Vers 2021 Ryan edit"
+    message1 = DigitalDisplay(startup_sentence).start_up()
+    previous_room_stat_setting = 0.1
+    #GPIO_start.start_up()
+    adc = ADCPi(0x68, 0x69, 16).set_pga(1).set_conversion_mode(1)
+    adc.set_pga(1)
+    adc.set_conversion_mode(1)
+
     while True:
         
         if first_loop:
