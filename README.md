@@ -1,4 +1,4 @@
-# Digital Display Controller
+# Central heating automater/controller
 
 This project is designed to manage central heating system by turning it on when the temp drops below a certain value, also includes class for displaying messages on fourletterphat screen
 
