@@ -1,4 +1,4 @@
-import time
+from time import sleep 
 from datetime import datetime
 import fourletterphat as flp # only availble on raspberry pi 
 import paho.mqtt.client as mqtt # only availble on raspberry pi 
@@ -14,10 +14,12 @@ class DigitalDisplay:
         self.sentence = sentence.upper().replace(" ","")
         
     def display_message(self):
-        for position, char in enumerate(self.sentence):
-            print(f"Goes here {position % 4} and display this character {char}")  
-            if (position + 1) % 4 == 0:
-                time.sleep(1)  
+        '''Display message on fourletterphat device'''
+        new_list = [x for x in self.sentence]
+
+        for i in range(len(new_list)):
+            print(new_list[i:i+4])
+            sleep(0.75)
 
 class MyMQTTClass(mqtt.Client):
     
